@@ -34,6 +34,8 @@
   <img src="https://img.shields.io/badge/Install_from-Chrome_Web_Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Install from Chrome Web Store" height="48">
 </a>
 
+Or download `chromium-bookmarks-mcp-*-chrome.zip` from [GitHub Releases](https://github.com/chiehw/chromium-bookmarks-mcp/releases), unzip it, then Chrome → `chrome://extensions` → Developer mode → **Load unpacked**.
+
 ### 2. Install the MCP server and add it to your AI client
 
 Download a binary from [GitHub Releases](https://github.com/chiehw/chromium-bookmarks-mcp/releases) (linux / darwin / windows, amd64 and arm64), or:
@@ -206,7 +208,7 @@ chromium-bookmarks-mcp doctor       # Diagnose connection issues
 
 > `register` is **automatic** on first proxy startup. Run it manually only when changing extension IDs (local dev), or after manually deleting native-host manifests.
 
-Push a `v*` tag to build linux/darwin/windows (amd64 + arm64) binaries and publish a GitHub Release, same pattern as pika.
+Push a `v*` tag to publish a GitHub Release: linux/darwin/windows (amd64 + arm64) MCP binaries plus the Chrome extension zip.
 
 ## Troubleshooting
 

@@ -23,9 +23,24 @@ def run(args, **kwargs):
     subprocess.run(args, cwd=ROOT, check=True, **kwargs)
 
 
+def build_extension_zip(dist: Path, version: str) -> None:
+    run(["npm", "ci", "--registry=https://registry.npmjs.org"])
+    run(["npm", "run", "wxt:prepare", "-w", "@chromium-bookmarks-mcp/extension"])
+    run(["npm", "run", "zip", "-w", "@chromium-bookmarks-mcp/extension"])
+    ver = version.lstrip("v")
+    src = ROOT / "apps/extension/.output" / f"chromium-bookmarks-mcp-{ver}-chrome.zip"
+    if not src.is_file():
+        found = ", ".join(p.name for p in (ROOT / "apps/extension/.output").glob("*.zip")) or "(none)"
+        raise SystemExit(f"Expected {src.name} in apps/extension/.output, found: {found}")
+    dest = dist / src.name
+    shutil.copy2(src, dest)
+    print(f"Copied {src.name} -> {dest.name}", flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--version", required=True)
+    parser.add_argument("--skip-extension", action="store_true")
     args = parser.parse_args()
 
     dist = ROOT / "dist"
@@ -63,6 +78,9 @@ def main():
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
         list(executor.map(build, jobs))
+
+    if not args.skip_extension:
+        build_extension_zip(dist, args.version)
 
     files = sorted(path for path in dist.iterdir() if path.is_file() and path.name != "SHA256SUMS")
     with (dist / "SHA256SUMS").open("w") as checksums:

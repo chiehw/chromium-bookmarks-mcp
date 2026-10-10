@@ -100,14 +100,14 @@ Chrome Native Messaging hosts cannot take extra argv, so `register` copies this 
 
 ## Release binaries
 
-Push a version tag to run the same flow as pika: cross-compile six platform binaries, attach `SHA256SUMS`, and publish a GitHub Release.
+Push a version tag to run the same flow as pika: cross-compile six platform binaries, zip the Chrome extension, attach `SHA256SUMS`, and publish a GitHub Release.
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.3.0
+git push origin v0.3.0
 ```
 
-Locally: `make build` (current OS) or `make release` (`dist/` for linux/darwin/windows × amd64/arm64).
+Locally: `make build` (current OS) or `make release` (`dist/` for linux/darwin/windows × amd64/arm64 plus `chromium-bookmarks-mcp-*-chrome.zip`).
 
 ## Tests
 

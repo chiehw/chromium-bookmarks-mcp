@@ -14,4 +14,7 @@ export default defineConfig({
       '128': 'icon-128.png',
     },
   },
+  zip: {
+    name: 'chromium-bookmarks-mcp',
+  },
 });
