@@ -30,7 +30,7 @@ function hintForError(error: string | null): string {
   if (!error) return '';
   const e = error.toLowerCase();
   if (e.includes('not found') || e.includes('no such native') || e.includes('manifest')) {
-    return 'Host manifest not found — run: bunx chromium-bookmarks-mcp register';
+    return 'Host manifest not found — run: chromium-bookmarks-mcp register';
   }
   if (e.includes('handshake')) {
     return 'Native host started but the server did not — check the host logs.';

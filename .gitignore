@@ -20,6 +20,10 @@ Thumbs.db
 # Build artifacts
 *.zip
 *.tgz
+/bin/
+/dist/
+/chromium-bookmarks-mcp
+/chromium-bookmarks-mcp.exe
 
 # Internal dev docs (specs, plans, reviews, TODOs) — do not ship
 docs/

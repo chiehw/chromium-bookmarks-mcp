@@ -1,4 +1,4 @@
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect } from 'vitest';
 import { isBlockedHost } from '../entrypoints/background/handlers/read.js';
 
 // handleCheckDeadLinks feeds the guard `new URL(bookmarkUrl).hostname`, so the

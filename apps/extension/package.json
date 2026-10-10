@@ -1,20 +1,24 @@
 {
   "name": "@chromium-bookmarks-mcp/extension",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
+    "wxt:prepare": "wxt prepare",
     "dev": "wxt dev",
     "build": "wxt build",
     "build:chrome": "wxt build -b chrome-mv3",
-    "zip": "wxt zip"
+    "zip": "wxt zip",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@chromium-bookmarks-mcp/shared": "workspace:*"
+    "@chromium-bookmarks-mcp/shared": "*"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.40",
     "typescript": "^5.8.0",
+    "vitest": "^3.2.0",
     "wxt": "^0.20.0"
   }
 }

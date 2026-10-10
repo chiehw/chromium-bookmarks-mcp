@@ -24,9 +24,8 @@ Chromium Bookmarks MCP connects your browser bookmarks to AI agents (like Claude
 3. All data stays on your machine — nothing is sent to external servers
 
 **Requirements:**
-- Bun runtime (https://bun.sh)
-- chromium-bookmarks-mcp npm package
-- An MCP-compatible AI agent (Claude Code, etc.)
+- The `chromium-bookmarks-mcp` Go binary (see the GitHub README)
+- An MCP-compatible AI agent (Claude Code, Cursor, etc.)
 
 **Privacy:**
 - Only 3 permissions: bookmarks, nativeMessaging, offscreen

@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'bun:test';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { installChromeFake, type ChromeBookmarksFake, type SeedNode } from './chrome-bookmarks-fake.js';
 import {
   handleDeduplicate,

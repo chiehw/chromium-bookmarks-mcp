@@ -9,7 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/chromium-bookmarks-mcp"><img src="https://img.shields.io/npm/v/chromium-bookmarks-mcp" alt="npm version"></a>
   <a href="https://chromewebstore.google.com/detail/chromium-bookmarks-mcp/ipcgfbbojaphhaoanjalmjmooeobjein"><img src="https://img.shields.io/badge/Chrome_Web_Store-published-4285F4?logo=googlechrome&logoColor=white" alt="Chrome Web Store"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-compatible-blue" alt="MCP Compatible"></a>
@@ -24,7 +23,7 @@
 
 ## Prerequisites
 
-- **[Bun](https://bun.sh) 1.2+** — the MCP server and native host run on Bun. Install with `curl -fsSL https://bun.sh/install | bash` (macOS / Linux) or `powershell -c "irm bun.sh/install.ps1 | iex"` (Windows).
+- **[Go](https://go.dev) 1.27+** — the MCP server and native host are a single Go binary.
 - A Chromium-based browser (Chrome, Brave, Edge, Arc, or Chromium itself).
 
 ## Quick Start
@@ -35,11 +34,17 @@
   <img src="https://img.shields.io/badge/Install_from-Chrome_Web_Store-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Install from Chrome Web Store" height="48">
 </a>
 
-### 2. Add to your AI client
+### 2. Install the MCP server and add it to your AI client
+
+Download a binary from [GitHub Releases](https://github.com/chiehw/chromium-bookmarks-mcp/releases) (linux / darwin / windows, amd64 and arm64), or:
+
+```bash
+go install github.com/chiehw/chromium-bookmarks-mcp/cmd/chromium-bookmarks-mcp@latest
+```
 
 **Claude Code:**
 ```bash
-claude mcp add bookmarks -- npx chromium-bookmarks-mcp
+claude mcp add bookmarks -- chromium-bookmarks-mcp
 ```
 
 **Claude Desktop** (`claude_desktop_config.json`):
@@ -47,16 +52,15 @@ claude mcp add bookmarks -- npx chromium-bookmarks-mcp
 {
   "mcpServers": {
     "bookmarks": {
-      "command": "npx",
-      "args": ["chromium-bookmarks-mcp"]
+      "command": "chromium-bookmarks-mcp"
     }
   }
 }
 ```
 
-> Registration runs when your MCP client first starts the stdio proxy (not at install time) — it registers itself as a native host for every detected Chromium browser, including writing the required HKCU registry keys on Windows. The step is idempotent and re-runs on every startup, so no manual `register` is needed.
+> Registration runs when your MCP client first starts the stdio proxy (not at install time) — it copies the binary into `~/.cache/chromium-bookmarks-mcp/` as the native host and registers it for every detected Chromium browser, including writing the required HKCU registry keys on Windows. The step is idempotent and re-runs on every startup, so no manual `register` is needed.
 
-**Cursor / Windsurf / other MCP clients** — use the same command: `npx chromium-bookmarks-mcp`
+**Cursor / Windsurf / other MCP clients** — use the same command: `chromium-bookmarks-mcp`
 
 ### 3. Activate the connection
 
@@ -193,28 +197,30 @@ Browser Bookmarks
 ## CLI Commands
 
 ```bash
-npx chromium-bookmarks-mcp              # Start MCP stdio proxy (default)
-npx chromium-bookmarks-mcp register     # Register native host for detected browsers
-npx chromium-bookmarks-mcp register ID  # Register with specific extension ID (local dev)
-npx chromium-bookmarks-mcp unregister   # Remove native host registration
-npx chromium-bookmarks-mcp doctor       # Diagnose connection issues
+chromium-bookmarks-mcp              # Start MCP stdio proxy (default)
+chromium-bookmarks-mcp register     # Register native host for detected browsers
+chromium-bookmarks-mcp register ID  # Register with specific extension ID (local dev)
+chromium-bookmarks-mcp unregister   # Remove native host registration
+chromium-bookmarks-mcp doctor       # Diagnose connection issues
 ```
 
 > `register` is **automatic** on first proxy startup. Run it manually only when changing extension IDs (local dev), or after manually deleting native-host manifests.
+
+Push a `v*` tag to build linux/darwin/windows (amd64 + arm64) binaries and publish a GitHub Release, same pattern as pika.
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Extension shows "Disconnected" | Click **Refresh status** in the popup. If still disconnected, run `npx chromium-bookmarks-mcp doctor` to diagnose. |
-| `register` doesn't detect browser | Pass the extension ID manually: `npx chromium-bookmarks-mcp register <ID>` |
+| Extension shows "Disconnected" | Click **Refresh status** in the popup. If still disconnected, run `chromium-bookmarks-mcp doctor` to diagnose. |
+| `register` doesn't detect browser | Pass the extension ID manually: `chromium-bookmarks-mcp register <ID>` |
 | MCP tools timeout | Ensure your browser is open and the extension is enabled |
 | Port 19420 conflict | Another instance may be running. Check with `lsof -i :19420` |
 | Tools work but return empty | Your browser may need bookmarks — try creating one manually first |
 
 For deeper diagnostics, run:
 ```bash
-npx chromium-bookmarks-mcp doctor
+chromium-bookmarks-mcp doctor
 ```
 
 ## Supported Browsers
@@ -233,37 +239,41 @@ On Windows, `register` writes both the manifest JSON and the corresponding `HKCU
 
 ### Prerequisites
 
-- [Bun](https://bun.sh/) 1.2+
+- [Go](https://go.dev/) 1.27+
+- [Node.js](https://nodejs.org/) 22+ (extension only)
 - A Chromium browser
 
 ### Project Structure
 
 ```
 chromium-bookmarks-mcp/
-├── packages/shared/          # Shared types and constants
-├── apps/extension/           # Browser extension (WXT + TypeScript)
-│   └── entrypoints/
-│       ├── background/       # Service worker + tool handlers
-│       ├── offscreen/        # Keepalive for MV3
-│       └── popup/            # Connection status UI
-└── apps/mcp-server/          # MCP server + native host
-    ├── src/
-    │   ├── index.ts          # CLI entry point
-    │   ├── native-host.ts    # Process A: native messaging + HTTP
-    │   ├── stdio-proxy.ts    # Process C: MCP stdio proxy
-    │   ├── native-protocol.ts # Chrome binary protocol
-    │   ├── browsers.ts       # Browser detection
-    │   └── register.ts       # Native host registration
-    └── bin/run_host.sh       # Shell wrapper for native host
+├── cmd/chromium-bookmarks-mcp/  # CLI: serve / native-host / register / doctor
+├── scripts/build-release.py     # Cross-compile release binaries
+├── Makefile
+├── internal/
+│   ├── protocol/                # Chrome native messaging framing
+│   ├── host/                    # Process A: native messaging + HTTP
+│   ├── proxy/                   # Process C: MCP stdio proxy
+│   ├── browsers/                # Browser detection
+│   └── register/                # Native host registration
+├── packages/shared/             # Shared types and constants (extension)
+└── apps/extension/              # Browser extension (WXT + TypeScript)
+    └── entrypoints/
+        ├── background/          # Service worker + tool handlers
+        ├── offscreen/           # Keepalive for MV3
+        └── popup/               # Connection status UI
 ```
 
 ### Commands
 
 ```bash
-bun install                    # Install all dependencies
-bun test                       # Run tests
-cd apps/extension && bun run wxt dev    # Dev mode (hot reload)
-cd apps/extension && bun run wxt build  # Production build
+go test ./...                  # Server unit tests
+make build                     # bin/chromium-bookmarks-mcp
+make release                   # dist/ binaries for all platforms
+npm install                    # Extension dependencies
+npm test -w @chromium-bookmarks-mcp/extension
+npm run dev -w @chromium-bookmarks-mcp/extension     # Dev mode (hot reload)
+npm run build -w @chromium-bookmarks-mcp/extension   # Production build
 ```
 
 ### Working with a local unpacked extension
@@ -273,7 +283,7 @@ The native-host manifest's `allowed_origins` defaults to the published Chrome We
 1. **Pin the dev ID via `manifest.key`** — copy the public key from the Web Store Developer Dashboard ("More info" → "Public key") into `apps/extension/wxt.config.ts` as `manifest.key`. Chrome derives the unpacked extension's ID from this key, matching the published one. Do **not** commit the key — keep it in a local `.env`-style override or a private branch.
 2. **Pass the dev ID to register** — load your unpacked extension, copy the ID from `chrome://extensions`, then run:
    ```bash
-   npx chromium-bookmarks-mcp register <your-dev-extension-id>
+   chromium-bookmarks-mcp register <your-dev-extension-id>
    ```
    This rewrites `allowed_origins` to your dev ID for local testing.
 
