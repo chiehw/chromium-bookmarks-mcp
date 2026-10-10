@@ -38,13 +38,6 @@ export const ROOT_FOLDER_IDS = ['0', '1', '2'];
 
 export const AUTH_TOKEN_HEADER = 'x-bookmarks-mcp-token';
 
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-
-export function authTokenPath(): string {
-  return join(homedir(), '.cache', 'chromium-bookmarks-mcp', 'auth-token');
-}
-
 // --- Timeout budget (nested across hops) ---
 // EXTENSION_OP_TIMEOUT_MS < REQUEST_TIMEOUT_MS < proxy fetch (35_000)
 export const EXTENSION_OP_TIMEOUT_MS = 25_000;
